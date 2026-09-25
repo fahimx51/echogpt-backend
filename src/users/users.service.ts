@@ -5,17 +5,17 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from './dto/create-user.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
+import { RegisterDto } from '../auth/dto/register.dto.js';
 
 
 @Injectable()
 export class UsersService {
     constructor(private readonly prisma: PrismaService) { }
 
-    async create(dto: CreateUserDto) {
+    async create(dto: RegisterDto) {
         const existing = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });

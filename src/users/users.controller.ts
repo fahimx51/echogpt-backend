@@ -5,14 +5,18 @@ import {
     Delete,
     Body,
     Param,
+    UseGuards,
 } from '@nestjs/common';
 
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 
 @ApiTags('Users')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
@@ -28,7 +32,7 @@ export class UsersController {
 
     @Patch(':id')
     @ApiOperation({ summary: 'Update user profile' })
-    
+
     updateProfile(@Param('id') id: string, @Body() dto: UpdateUserDto) {
         return this.usersService.updateProfile(id, dto);
     }
