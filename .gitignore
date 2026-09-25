@@ -59,11 +59,15 @@ pids
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+# AI agent / editor tool folders
 .claude
 .cursor
 .agents
 .devin
+
+# Local tool configs (keep these tracked instead if the project uses them intentionally)
 .prettierrc
 .oxlintrc.json
 
-/generated/prisma
+# Prisma generated client (regenerated via `npx prisma generate`, not source)
+/src/generated

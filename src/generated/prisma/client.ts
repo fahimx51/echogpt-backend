@@ -44,4 +44,38 @@ export { Prisma }
 path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node")
 path.join(process.cwd(), "src/generated/prisma/libquery_engine-debian-openssl-3.0.x.so.node")
 
-
+/**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel
+/**
+ * Model AIProvider
+ * 
+ */
+export type AIProvider = Prisma.AIProviderModel
+/**
+ * Model Chat
+ * 
+ */
+export type Chat = Prisma.ChatModel
+/**
+ * Model WebSearch
+ * 
+ */
+export type WebSearch = Prisma.WebSearchModel
+/**
+ * Model ApiUsageLog
+ * 
+ */
+export type ApiUsageLog = Prisma.ApiUsageLogModel
