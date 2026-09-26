@@ -13,6 +13,7 @@ import { AiProvidersService } from './ai-providers.service.js';
 import { CreateProviderDto } from './dto/create-provider.dto.js';
 import { UpdateProviderDto } from './dto/update-provider.dto.js';
 import { ToggleEnabledDto } from './dto/toggle-enabled.dto.js';
+import { SetDefaultModelDto } from './dto/set-default-model.dto.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { GetUser } from '../auth/decorators/get-user.decorator.js';
 
@@ -55,6 +56,17 @@ export class AiProvidersController {
         @Body() dto: UpdateProviderDto,
     ) {
         return this.aiProvidersService.update(userId, id, dto);
+    }
+
+    @Patch(':id/model')
+    @ApiOperation({ summary: 'Set the preferred model for a provider' })
+    @ApiResponse({ status: 200, description: 'Default model updated' })
+    setDefaultModel(
+        @GetUser('userId') userId: string,
+        @Param('id') id: string,
+        @Body() dto: SetDefaultModelDto,
+    ) {
+        return this.aiProvidersService.setDefaultModel(userId, id, dto.model);
     }
 
     @Patch(':id/toggle')

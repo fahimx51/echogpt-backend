@@ -4,6 +4,7 @@ import { AiProvidersController } from './ai-providers.controller.js';
 
 @Module({
   providers: [AiProvidersService],
-  controllers: [AiProvidersController]
+  controllers: [AiProvidersController],
+  exports: [AiProvidersService],
 })
-export class AiProvidersModule {}
+export class AiProvidersModule { }

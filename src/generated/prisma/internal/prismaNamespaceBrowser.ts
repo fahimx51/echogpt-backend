@@ -119,6 +119,7 @@ export const AIProviderScalarFieldEnum = {
   userId: 'userId',
   name: 'name',
   apiKeyEnc: 'apiKeyEnc',
+  defaultModel: 'defaultModel',
   isEnabled: 'isEnabled',
   isDefault: 'isDefault',
   createdAt: 'createdAt'
@@ -130,6 +131,7 @@ export type AIProviderScalarFieldEnum = (typeof AIProviderScalarFieldEnum)[keyof
 export const ChatScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  conversationId: 'conversationId',
   provider: 'provider',
   prompt: 'prompt',
   response: 'response',

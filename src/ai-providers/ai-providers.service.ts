@@ -30,6 +30,7 @@ export class AiProvidersService {
                 userId,
                 name: dto.name,
                 apiKeyEnc: encrypt(dto.apiKey),
+                defaultModel: dto.defaultModel,
                 isDefault: isFirstProvider, // first provider added becomes default automatically
             },
         });
@@ -59,6 +60,15 @@ export class AiProvidersService {
         });
 
         return this.toSafeResponse(provider, dto.apiKey);
+    }
+
+    async setDefaultModel(userId: string, id: string, model: string) {
+        await this.findOwned(userId, id);
+        const provider = await this.prisma.aIProvider.update({
+            where: { id },
+            data: { defaultModel: model },
+        });
+        return this.toSafeResponse(provider);
     }
 
     async remove(userId: string, id: string) {
@@ -156,6 +166,7 @@ export class AiProvidersService {
         return {
             name: provider.name,
             apiKey: decrypt(provider.apiKeyEnc),
+            defaultModel: provider.defaultModel,
         };
     }
 

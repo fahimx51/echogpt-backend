@@ -75,29 +75,32 @@ model Subscription {
 }
 
 model AIProvider {
-  id        String         @id @default(uuid())
-  userId    String
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      AIProviderName
-  apiKeyEnc String
-  isEnabled Boolean        @default(true)
-  isDefault Boolean        @default(false)
-  createdAt DateTime       @default(now())
+  id           String         @id @default(uuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         AIProviderName
+  apiKeyEnc    String
+  defaultModel String?
+  isEnabled    Boolean        @default(true)
+  isDefault    Boolean        @default(false)
+  createdAt    DateTime       @default(now())
 
   @@unique([userId, name])
   @@index([userId, isDefault])
 }
 
 model Chat {
-  id        String         @id @default(uuid())
-  userId    String
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  provider  AIProviderName
-  prompt    String
-  response  String
-  createdAt DateTime       @default(now())
+  id             String         @id @default(uuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId String
+  provider       AIProviderName
+  prompt         String
+  response       String
+  createdAt      DateTime       @default(now())
 
   @@index([userId, createdAt])
+  @@index([conversationId, createdAt])
 }
 
 model WebSearch {
