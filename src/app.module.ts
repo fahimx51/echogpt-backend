@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
 import { AiProvidersModule } from './ai-providers/ai-providers.module.js';
 import { ChatModule } from './chat/chat.module.js';
+import { SearchModule } from './search/search.module.js';
 
 
 @Module({
@@ -15,7 +16,8 @@ import { ChatModule } from './chat/chat.module.js';
     AuthModule,
     SubscriptionsModule,
     AiProvidersModule,
-    ChatModule
+    ChatModule,
+    SearchModule
   ],
   controllers: [],
   providers: [PrismaService],
