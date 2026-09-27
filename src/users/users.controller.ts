@@ -4,7 +4,6 @@ import {
     Patch,
     Delete,
     Body,
-    Param,
     UseGuards,
 } from '@nestjs/common';
 
@@ -13,6 +12,7 @@ import { UsersService } from './users.service.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { GetUser } from '../auth/decorators/get-user.decorator.js';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -21,31 +21,29 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
-    @Get(':id')
-    @ApiOperation({ summary: 'Get user profile by ID' })
+    @Get('me')
+    @ApiOperation({ summary: "Get the logged-in user's profile" })
     @ApiResponse({ status: 200, description: 'User found' })
     @ApiResponse({ status: 404, description: 'User not found' })
-
-    findOne(@Param('id') id: string) {
-        return this.usersService.findById(id);
+    findOne(@GetUser('userId') userId: string) {
+        return this.usersService.findById(userId);
     }
 
-    @Patch(':id')
-    @ApiOperation({ summary: 'Update user profile' })
-
-    updateProfile(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-        return this.usersService.updateProfile(id, dto);
+    @Patch('me')
+    @ApiOperation({ summary: "Update the logged-in user's profile" })
+    updateProfile(@GetUser('userId') userId: string, @Body() dto: UpdateUserDto) {
+        return this.usersService.updateProfile(userId, dto);
     }
 
-    @Patch(':id/password')
-    @ApiOperation({ summary: 'Change user password' })
-    changePassword(@Param('id') id: string, @Body() dto: ChangePasswordDto) {
-        return this.usersService.changePassword(id, dto);
+    @Patch('me/password')
+    @ApiOperation({ summary: "Change the logged-in user's password" })
+    changePassword(@GetUser('userId') userId: string, @Body() dto: ChangePasswordDto) {
+        return this.usersService.changePassword(userId, dto);
     }
 
-    @Delete(':id')
-    @ApiOperation({ summary: 'Delete user account' })
-    remove(@Param('id') id: string) {
-        return this.usersService.delete(id);
+    @Delete('me')
+    @ApiOperation({ summary: "Delete the logged-in user's own account" })
+    remove(@GetUser('userId') userId: string) {
+        return this.usersService.delete(userId);
     }
 }

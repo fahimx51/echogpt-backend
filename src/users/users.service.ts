@@ -3,6 +3,7 @@ import {
     NotFoundException,
     ConflictException,
     UnauthorizedException,
+    BadRequestException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -70,6 +71,10 @@ export class UsersService {
         const isMatch = await bcrypt.compare(dto.currentPassword, user.password);
         if (!isMatch) {
             throw new UnauthorizedException('Current password is incorrect');
+        }
+
+        if (dto.currentPassword === dto.newPassword) {
+            throw new BadRequestException('New password must be different from the current password');
         }
 
         const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
