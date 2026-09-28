@@ -10,6 +10,7 @@ import { SearchModule } from './search/search.module.js';
 import { AdminModule } from './admin/admin.module.js';
 import { UsageLogInterceptor } from './common/interceptors/usage-log.interceptor.js';
 import { RedisModule } from './redis/redis.module.js';
+import { AppController } from './app.controller.js';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { RedisModule } from './redis/redis.module.js';
     AdminModule,
     RedisModule
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_INTERCEPTOR,

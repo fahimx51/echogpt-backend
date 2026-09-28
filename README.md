@@ -1,124 +1,191 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# EchoGPT Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend REST API for the [EchoGPT Chrome Extension](https://chromewebstore.google.com/detail/echogpt-multi-ai-chat-sid/negimdcamohmoheiifgecbjgjepkcfhj), built with NestJS, PostgreSQL, Prisma, and Swagger, as a technical assessment for the Software Engineering Internship (Backend) role at AppifyDevs.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **Live API:** https://echogpt-backend.onrender.com
+- **Swagger docs:** https://echogpt-backend.onrender.com/docs
 
-## Description
+> Render's free tier spins down after inactivity. The first request after idle time can take 30-60 seconds to wake up.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech stack
 
-## Project setup
+- **Framework:** NestJS (ESM)
+- **Database:** PostgreSQL, via Prisma ORM
+- **Cache:** Redis (search result caching)
+- **Auth:** JWT (access + refresh tokens), Passport
+- **Docs:** Swagger / OpenAPI
+- **AI providers:** OpenAI, Anthropic (Claude), Google Gemini
+- **Web search:** Serper.dev
+- **Containerization:** Docker, Docker Compose
 
-```bash
-$ npm install
-```
+## Features
 
-## Compile and run the project
+All required features are implemented. Two items were explicitly listed as bonus in the assignment; one was built, one was deferred by design (see [Design decisions](#design-decisions)).
 
-```bash
-# development
-$ npm run start
+| Module | Status |
+|---|---|
+| Authentication (register, login, logout, JWT, refresh, hashing) | Done |
+| Email verification (bonus) | Not implemented |
+| User management (profile, update, change password, delete, roles) | Done |
+| Subscription management (plans, status, usage, upgrade/downgrade) | Done |
+| AI provider management (CRUD, encrypted keys, default, health check) | Done |
+| Chat API (send/receive, provider + model selection, conversation history) | Done |
+| Streaming responses (bonus) | Not implemented |
+| Web search API (AI-assisted, history, recent, suggestions) | Done |
+| Search result caching (bonus) | Done (Redis) |
+| Admin panel (dashboard, user/subscription/provider management, analytics, logs, health) | Done |
+| Swagger documentation | Done |
+| Docker | Done |
+| Postman collection (optional) | Done (`docs/echo-gpt.postman_collection.json`) |
 
-# watch mode
-$ npm run start:dev
+## Getting started
 
-# production mode
-$ npm run start:prod
-```
+### Option A: Docker (recommended)
 
-## Run tests
+Requires Docker and Docker Compose. No local Postgres, Redis, or Node install needed.
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/fahimx51/echogpt-backend.git
+cd echogpt-backend
+cp .env.example .env
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Open `.env` and fill in at least `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, and `ENCRYPTION_KEY` (see [Environment variables](#environment-variables) for how to generate them). Leave `DATABASE_URL` unset to use the bundled Postgres container automatically, or point it at your own Postgres/Neon instance.
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose up --build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+This starts a local Postgres container, applies all migrations, and starts the API. Open http://localhost:3000/docs to confirm it's running.
 
-## Observability
+### Option B: Without Docker
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project:
+Requires Node.js 24+, npm, and a running PostgreSQL instance.
 
 ```bash
-$ npm install @nestjs/observe
+git clone https://github.com/fahimx51/echogpt-backend.git
+cd echogpt-backend
+npm install
+cp .env.example .env
 ```
 
-Then follow the [setup guide](https://docs.nestjs.com/observability/overview) - it takes a single import and an app key.
+Fill in `.env`, including a real `DATABASE_URL` pointing at your own PostgreSQL database.
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+```bash
+npx prisma migrate deploy
+npm run build
+npm run start:prod
+```
 
-## Resources
+For local development with hot reload:
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Environment variables
 
-## Support
+Copy `.env.example` to `.env` and fill in your own values. None of these are committed to the repository.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes (Option B) / Optional (Docker) | PostgreSQL connection string. If unset under Docker, falls back to the bundled Postgres container. |
+| `PORT` | No | Port the API listens on. Defaults to 3000. Render sets this automatically. |
+| `JWT_ACCESS_SECRET` | Yes | Secret for signing access tokens. |
+| `JWT_REFRESH_SECRET` | Yes | Secret for signing refresh tokens. Must differ from the access secret. |
+| `JWT_ACCESS_EXPIRY` | No | Access token lifetime, e.g. `15m`. |
+| `JWT_REFRESH_EXPIRY` | No | Refresh token lifetime, e.g. `7d`. |
+| `ENCRYPTION_KEY` | Yes | 64 hex characters (32 bytes). Encrypts stored AI provider API keys at rest. |
+| `SERPER_API_KEY` | Yes, for Web Search | API key from [serper.dev](https://serper.dev), used for the underlying web search calls. |
+| `REDIS_URL` | Yes, for Search caching | Redis connection string (e.g. from Redis Cloud's free tier). |
+| `OPENAI_DEFAULT_MODEL` | No | Fallback model if a user hasn't set one on their provider. Defaults to `gpt-4o-mini`. |
+| `CLAUDE_DEFAULT_MODEL` | No | Defaults to `claude-3-5-haiku-20241022`. |
+| `GEMINI_DEFAULT_MODEL` | No | Defaults to `gemini-3.5-flash-lite`. Verify these model names are still current; providers deprecate models over time. |
+| `FRONTEND_URL` | No | Reserved for CORS configuration if a frontend is added later. |
 
-## Stay in touch
+Generate the JWT secrets:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+Generate the encryption key:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**Important:** AI provider keys (OpenAI, Claude, Gemini) are *not* environment variables. Each user adds their own through the `/api/ai-providers` endpoints after registering, since this is a multi-tenant backend, not a single-key proxy. Testing Chat and Search requires a real key from at least one provider, and a Serper key for Search.
+
+## API overview
+
+All routes are prefixed with `/api`. Full request/response schemas, parameters, and error responses are documented in Swagger at `/docs`.
+
+| Module | Base path | Notes |
+|---|---|---|
+| Auth | `/api/auth` | register, login, refresh, logout |
+| Users | `/api/users/me` | profile, update, change password, delete (always acts on the authenticated user, not an arbitrary ID) |
+| Subscriptions | `/api/subscriptions` | status, usage, change-plan |
+| AI Providers | `/api/ai-providers` | CRUD, toggle, set-default, model, health |
+| Chat | `/api/chat` | send, history, conversations, conversation by ID |
+| Search | `/api/search` | search, history, recent, suggestions |
+| Admin | `/api/admin` | dashboard, users, subscriptions, ai-providers, analytics, logs, health (all require `role: ADMIN`) |
+
+### Authentication
+
+Register and log in through `/api/auth/register` and `/api/auth/login` to receive an `accessToken` and `refreshToken`. Pass the access token as `Authorization: Bearer <token>` on protected routes. Use `/api/auth/refresh` with the refresh token to get a new pair once the access token expires; refresh tokens rotate on use.
+
+### Becoming an admin
+
+New accounts default to the `USER` role. To test the Admin Panel, promote an account directly in the database:
+
+```sql
+UPDATE "User" SET role = 'ADMIN' WHERE email = 'your@email.com';
+```
+
+Log in again afterward, since the role is embedded in the JWT at login time and won't update on an existing token.
+
+## Database design
+
+PostgreSQL, managed through Prisma migrations (`prisma/migrations/`). Seven core tables:
+
+- **User** — accounts, roles (`USER` / `ADMIN`), credentials
+- **Session** — refresh tokens, one row per active login, supports multi-device logout
+- **Subscription** — one-to-one with User, plan type and usage counters
+- **AIProvider** — one row per (user, provider) pair; encrypted API key, per-provider default model, enabled/default flags
+- **Chat** — one row per prompt/response pair, grouped into threads via `conversationId`
+- **WebSearch** — one row per search, storing raw results and the AI-generated summary together
+- **ApiUsageLog** — one row per HTTP request, written by a global interceptor, powers the Admin analytics and logs endpoints
+
+Indexes are added on every foreign key plus the columns each endpoint actually filters or sorts by (e.g. `[userId, createdAt]` on Chat and WebSearch, `[userId, name]` unique on AIProvider).
+
+## Design decisions
+
+A few choices worth calling out, since they weren't the only valid option:
+
+- **Chat threading uses a plain `conversationId` string on the `Chat` table**, not a separate `Conversation` model. Each message already carries `userId` and `createdAt`; grouping by `conversationId` is sufficient to reconstruct threads and pass prior turns back to the AI provider as context, without a second table and its own CRUD surface.
+- **AI provider API keys are encrypted at rest** with AES-256-GCM before being stored, using a server-side `ENCRYPTION_KEY`, and are never returned in full through any endpoint, including immediately after creation, only a masked preview.
+- **User-facing routes operate on `/users/me`, not `/users/:id`.** Regular users can only read, update, or delete their own account; there is no way to target another user's ID from a non-admin token. Admins manage other users through the separate, role-gated `/api/admin/users/:id` routes.
+- **Search result caching is keyed by the normalized query text only, shared across all users.** Serper's results for a given query don't depend on who's asking, so this maximizes cache hits without any privacy concern. The AI-generated summary is *not* cached, since it depends on each user's chosen provider and model.
+- **Streaming responses and email verification were left as the two explicitly-bonus items not built**, in favor of finishing search result caching and hardening the required feature set (authorization checks, Docker, migration verification) within the available time. Streaming in particular would require a materially different response mechanism (SSE) with a different payload shape per provider (OpenAI, Anthropic, and Gemini each stream differently), which was a larger scope increase than the time available supported doing well.
+- **Model names per AI provider are configurable**, not hardcoded: a user can set a `defaultModel` per provider, override it per chat/search request, or fall back to a server-wide `.env` default. This was added after hitting several live model deprecations from Google during development, and is meant to keep the app resilient to providers retiring model names over time.
+- **Roles are a `Role` enum (`USER` / `ADMIN`) on the `User` table, not a separate table.** There are only two fixed roles and no per-role permissions, so a join table would add complexity without adding capability. If granular permissions were needed later, this could be migrated to a `Role` table.
+
+## Testing
+
+A Postman collection covering every endpoint is included at [`docs/echo-gpt.postman_collection.json`](docs/echo-gpt.postman_collection.json).
+
+1. In Postman, choose **Import** and select the file.
+2. Set the `baseUrl` collection variable to `http://localhost:3000` (local) or `https://echogpt-backend.onrender.com` (deployed).
+3. Run the requests roughly top to bottom: Auth → Users → Subscriptions → AI Providers → Chat → Search → Admin.
+
+Chat and Search need a real provider key added through `/api/ai-providers`, and Search also needs `SERPER_API_KEY` on the server. Admin requests need an account promoted to `ADMIN` (see [Becoming an admin](#becoming-an-admin)).
+
+## Known limitations
+
+- Streaming chat responses and email verification are not implemented (see above).
+- Render's free tier cold-starts after inactivity.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Built as a technical assessment for AppifyDevs. Not licensed for other use.
