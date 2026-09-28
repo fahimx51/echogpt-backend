@@ -182,9 +182,7 @@ export class AiProvidersService {
         const { apiKeyEnc, ...rest } = provider;
         return {
             ...rest,
-            apiKeyPreview: plainKeyForMasking
-                ? maskKey(plainKeyForMasking)
-                : '****', // can't reverse-mask without decrypting; kept minimal on reads
+            apiKeyPreview: maskKey(decrypt(apiKeyEnc))
         };
     }
 }

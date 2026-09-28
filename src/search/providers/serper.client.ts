@@ -1,4 +1,7 @@
-import { BadGatewayException } from '@nestjs/common';
+import {
+    BadGatewayException,
+    InternalServerErrorException,
+} from '@nestjs/common';
 
 export interface SerperResult {
     title: string;
@@ -6,29 +9,42 @@ export interface SerperResult {
     snippet: string;
 }
 
+const SERPER_URL = 'https://google.serper.dev/search';
+const REQUEST_TIMEOUT_MS = 10_000;
+const MAX_RESULTS = 5;
+
 export async function searchWeb(query: string): Promise<SerperResult[]> {
     const apiKey = process.env.SERPER_API_KEY;
     if (!apiKey) {
-        throw new Error('SERPER_API_KEY is not set in environment variables');
+        throw new InternalServerErrorException('Web search is not configured');
     }
 
-    const response = await fetch('https://google.serper.dev/search', {
-        method: 'POST',
-        headers: {
-            'X-API-KEY': apiKey,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ q: query }),
-    });
+    let response: Response;
+    try {
+        response = await fetch(SERPER_URL, {
+            method: 'POST',
+            headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ q: query }),
+            signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
+    } catch {
+        throw new BadGatewayException('Search provider request failed or timed out');
+    }
 
     if (!response.ok) {
-        throw new BadGatewayException(`Serper search failed: ${response.statusText}`);
+        throw new BadGatewayException(
+            `Search provider returned an error (status ${response.status})`,
+        );
     }
 
-    const data = await response.json();
+    let data: { organic?: Array<Partial<SerperResult>> };
+    try {
+        data = await response.json();
+    } catch {
+        throw new BadGatewayException('Search provider returned an invalid response');
+    }
 
-    const organic = (data.organic ?? []) as any[];
-    return organic.slice(0, 5).map((r) => ({
+    return (data.organic ?? []).slice(0, MAX_RESULTS).map((r) => ({
         title: r.title ?? '',
         link: r.link ?? '',
         snippet: r.snippet ?? '',

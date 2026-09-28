@@ -9,6 +9,7 @@ import { ChatModule } from './chat/chat.module.js';
 import { SearchModule } from './search/search.module.js';
 import { AdminModule } from './admin/admin.module.js';
 import { UsageLogInterceptor } from './common/interceptors/usage-log.interceptor.js';
+import { RedisModule } from './redis/redis.module.js';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UsageLogInterceptor } from './common/interceptors/usage-log.interceptor
     ChatModule,
     SearchModule,
     AdminModule,
+    RedisModule
   ],
   controllers: [],
   providers: [

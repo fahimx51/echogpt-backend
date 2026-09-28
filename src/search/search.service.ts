@@ -1,14 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { RedisService } from '../redis/redis.service.js';
 import { AiProvidersService } from '../ai-providers/ai-providers.service.js';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service.js';
 import { callAIProvider } from '../chat/providers/ai-client.factory.js';
 import { searchWeb } from './providers/serper.client.js';
 
+type SearchResult = { title: string; link: string; snippet: string };
+
 @Injectable()
 export class SearchService {
+    private readonly cacheTtl = Number(process.env.SEARCH_CACHE_TTL_SECONDS ?? 86400);
+
     constructor(
         private readonly prisma: PrismaService,
+        private readonly redis: RedisService,
         private readonly aiProvidersService: AiProvidersService,
         private readonly subscriptionsService: SubscriptionsService,
     ) { }
@@ -16,7 +23,7 @@ export class SearchService {
     async search(userId: string, query: string) {
         await this.subscriptionsService.checkAndIncrementUsage(userId);
 
-        const results = await searchWeb(query);
+        const { results, cached } = await this.getResults(query);
 
         const { name, apiKey, defaultModel } = await this.aiProvidersService.getDecryptedKeyForChat(
             userId,
@@ -38,7 +45,7 @@ export class SearchService {
             },
         });
 
-        return record;
+        return { ...record, cached };
     }
 
     async getHistory(userId: string, take = 20, skip = 0) {
@@ -80,10 +87,26 @@ export class SearchService {
         return unique.slice(0, 5);
     }
 
-    private buildSummaryPrompt(
-        query: string,
-        results: { title: string; link: string; snippet: string }[],
-    ): string {
+    /** Serper results don't depend on the user, so the cache is shared across users. */
+    private async getResults(query: string): Promise<{ results: SearchResult[]; cached: boolean }> {
+        const key = this.cacheKey(query);
+
+        const hit = await this.redis.getJson<SearchResult[]>(key);
+        if (hit) return { results: hit, cached: true };
+
+        const results = await searchWeb(query);
+        if (results.length > 0) {
+            await this.redis.setJson(key, results, this.cacheTtl);
+        }
+        return { results, cached: false };
+    }
+
+    private cacheKey(query: string): string {
+        const normalized = query.trim().toLowerCase().replace(/\s+/g, ' ');
+        return `search:serper:${createHash('sha256').update(normalized).digest('hex')}`;
+    }
+
+    private buildSummaryPrompt(query: string, results: SearchResult[]): string {
         const resultsText = results
             .map((r, i) => `${i + 1}. ${r.title}\n${r.snippet}\nSource: ${r.link}`)
             .join('\n\n');

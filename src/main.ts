@@ -9,6 +9,16 @@ import { AppModule } from './app.module.js';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const origins = process.env.FRONTEND_URL;
+
+  app.enableCors({
+    origin: origins?.length ? origins : true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
+  app.enableShutdownHooks();
+
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(
